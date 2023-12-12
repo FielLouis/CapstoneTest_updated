@@ -19,13 +19,13 @@ public class MinesweeperFrame extends JFrame {
         add(statusbar, BorderLayout.SOUTH);
         statusbar.setFont(new Font("Arial",Font.BOLD, 30));
 
-        setTitle("Minesweeper");
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         add(new MinesweeperGame(statusbar, this, parentFrame));
 
         setResizable(false);
         pack();
+
+        setTitle("Minesweeper");
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }
