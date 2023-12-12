@@ -1,19 +1,16 @@
 package Minesweeper;
 
-import Sound.SFX;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Random;
 import javax.swing.*;
 
 public class MinesweeperGame extends JPanel {
-
     JFrame parentFrame1;
     JFrame parentFrame2;
-    private final int NUM_IMAGES = 13;
     private final int CELL_SIZE = 20;
 
     private final int COVER_FOR_CELL = 10;
@@ -21,19 +18,10 @@ public class MinesweeperGame extends JPanel {
     private final int EMPTY_CELL = 0;
     private final int MINE_CELL = 9;
     private final int COVERED_MINE_CELL = MINE_CELL + COVER_FOR_CELL;
-    private final int MARKED_MINE_CELL = COVERED_MINE_CELL + MARK_FOR_CELL;
+    public final int MARKED_MINE_CELL = COVERED_MINE_CELL + MARK_FOR_CELL;
 
-    private final int DRAW_MINE = 9;
-    private final int DRAW_COVER = 10;
-    private final int DRAW_MARK = 11;
-    private final int DRAW_WRONG_MARK = 12;
-
-    private final int N_MINES = 40;
     private final int N_ROWS = 20;
     private final int N_COLS = 20;
-
-    private final int BOARD_WIDTH = N_COLS * CELL_SIZE + 1;
-    private final int BOARD_HEIGHT = N_ROWS * CELL_SIZE + 1;
 
     private int[] field;
     private boolean inGame;
@@ -44,36 +32,76 @@ public class MinesweeperGame extends JPanel {
     private final JLabel statusbar;
 
     public MinesweeperGame(JLabel statusbar, JFrame frame1, JFrame frame2) {
-        parentFrame1 = frame1;
-        parentFrame2 = frame2;
-
+        this.parentFrame1 = frame1;
+        this.parentFrame2 = frame2;
         this.statusbar = statusbar;
         initBoard();
-
-
     }
 
     private void initBoard() {
-        setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
+        int BOARD_WIDTH = N_COLS * CELL_SIZE + 1;
+        int BOARD_HEIGHT = N_ROWS * CELL_SIZE + 1;
+        setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT + 20));
         setLayout(null);
+        int NUM_IMAGES = 13;
         img = new Image[NUM_IMAGES];
 
         for (int i = 0; i < NUM_IMAGES; i++) {
-            var path = "img/" + i + ".png";
-            img[i] = (new ImageIcon(path)).getImage();
-            img[i] = img[i].getScaledInstance(CELL_SIZE, CELL_SIZE, Image.SCALE_SMOOTH);
+            try {
+                var path = "img/" + i + ".png";
+                ImageIcon icon = new ImageIcon(path);
+                if (icon.getImageLoadStatus() == java.awt.MediaTracker.COMPLETE) {
+                    img[i] = icon.getImage();
+                    img[i] = img[i].getScaledInstance(CELL_SIZE, CELL_SIZE, Image.SCALE_SMOOTH);
+                } else {
+                    System.err.println("Error loading image: " + path);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
+//        for (int i = 0; i < NUM_IMAGES; i++) {
+//            var path = "img/" + i + ".png";
+//            img[i] = (new ImageIcon(path)).getImage();
+//            img[i] = img[i].getScaledInstance(CELL_SIZE, CELL_SIZE, Image.SCALE_SMOOTH);
+//        }
+
         addMouseListener(new MinesAdapter());
+
+        JButton restartButton = new JButton("Restart");
+        restartButton.setBounds((BOARD_WIDTH / 2) + 20, BOARD_HEIGHT, 80, 20);
+        restartButton.addActionListener(e -> restartGame());
+        add(Box.createVerticalStrut(5));
+        add(restartButton);
+
+        JButton returnButton = new JButton("Return");
+        returnButton.setBounds((BOARD_WIDTH / 2) + 120, BOARD_HEIGHT, 80, 20);
+        returnButton.addActionListener(e -> returnToParent());
+        add(returnButton);
+
         newGame();
     }
 
+    private void restartGame() {
+        newGame();
+        revalidate();
+        repaint();
+    }
+
+    private void returnToParent() {
+        parentFrame1.dispose();
+        parentFrame2.setVisible(true);
+    }
+
     private void newGame() {
+
         int cell;
 
         var random = new Random();
         inGame = true;
-        minesLeft = N_MINES;
+        int n_MINES = 40;
+        minesLeft = n_MINES;
 
         allCells = N_ROWS * N_COLS;
         field = new int[allCells];
@@ -87,7 +115,7 @@ public class MinesweeperGame extends JPanel {
 
         int i = 0;
 
-        while (i < N_MINES) {
+        while (i < n_MINES) {
 
             int position = (int) (allCells * random.nextDouble());
 
@@ -261,24 +289,22 @@ public class MinesweeperGame extends JPanel {
                 int cell = field[(i * N_COLS) + j];
 
                 if (inGame && cell == MINE_CELL) {
-
                     inGame = false;
                 }
 
+                int DRAW_COVER = 10;
+                int DRAW_MARK = 11;
                 if (!inGame) {
-
                     if (cell == COVERED_MINE_CELL) {
-                        cell = DRAW_MINE;
+                        cell = 9;
                     } else if (cell == MARKED_MINE_CELL) {
                         cell = DRAW_MARK;
                     } else if (cell > COVERED_MINE_CELL) {
-                        cell = DRAW_WRONG_MARK;
+                        cell = 12;
                     } else if (cell > MINE_CELL) {
                         cell = DRAW_COVER;
                     }
-
                 } else {
-
                     if (cell > COVERED_MINE_CELL) {
                         cell = DRAW_MARK;
                     } else if (cell > MINE_CELL) {
@@ -295,17 +321,12 @@ public class MinesweeperGame extends JPanel {
         if (uncover == 0 && inGame) {
             inGame = false;
             statusbar.setText("Game won");
-
         } else if (!inGame) {
             statusbar.setText("Game lost");
-            SFX.playGameOver();
-
-
         }
     }
 
     private class MinesAdapter extends MouseAdapter {
-
         @Override
         public void mousePressed(MouseEvent e) {
 
@@ -318,20 +339,17 @@ public class MinesweeperGame extends JPanel {
             boolean doRepaint = false;
 
             if (!inGame) {
-                newGame();
                 repaint();
+                return;
             }
 
             if ((x < N_COLS * CELL_SIZE) && (y < N_ROWS * CELL_SIZE)) {
-
                 if (e.getButton() == MouseEvent.BUTTON3) {
-
                     if (field[(cRow * N_COLS) + cCol] > MINE_CELL) {
 
                         doRepaint = true;
 
                         if (field[(cRow * N_COLS) + cCol] <= COVERED_MINE_CELL) {
-
                             if (minesLeft > 0) {
                                 field[(cRow * N_COLS) + cCol] += MARK_FOR_CELL;
                                 minesLeft--;
@@ -341,7 +359,6 @@ public class MinesweeperGame extends JPanel {
                                 statusbar.setText("No marks left");
                             }
                         } else {
-
                             field[(cRow * N_COLS) + cCol] -= MARK_FOR_CELL;
                             minesLeft++;
                             String msg = Integer.toString(minesLeft);
@@ -352,7 +369,6 @@ public class MinesweeperGame extends JPanel {
                 } else {
 
                     if (field[(cRow * N_COLS) + cCol] > COVERED_MINE_CELL) {
-
                         return;
                     }
 
