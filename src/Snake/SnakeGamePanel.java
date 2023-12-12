@@ -2,6 +2,7 @@ package Snake;
 
 import Sound.SFX;
 
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,28 +10,32 @@ import java.io.File;
 import java.util.Random;
 
 public class SnakeGamePanel extends JPanel implements ActionListener {
-
+    JFrame parentFrame1;
+    JFrame parentFrame2;
     static final int SCREEN_WIDTH = 600;
     static final int SCREEN_HEIGHT = SCREEN_WIDTH;
     static final int UNIT_SIZE = 25;
     int ROWS = SCREEN_HEIGHT / UNIT_SIZE;
     int COLUMNS = ROWS;
     static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
-    static final int DELAY = 75;
+    static final int DELAY = 100;
     final int[] x = new int[GAME_UNITS];
     final int[] y = new int[GAME_UNITS];
-    int bodyParts = 6;
+    int bodyParts;
     int applesEaten;
     int appleX;
     int appleY;
     char direction = 'R';
     boolean running = false;
+    boolean adjust;
     Timer timer;
     Random random;
     File snakeBGMusic = new File("music/snake_music_loop.wav");
     Image gameOverIMG = new ImageIcon("img/gameOver-cat.png").getImage();
 
-    SnakeGamePanel() {
+    public SnakeGamePanel(JFrame frame1, JFrame frame2) {
+        parentFrame1 = frame1;
+        parentFrame2 = frame2;
         random = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.BLACK);
@@ -45,6 +50,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        adjust = true;
         bodyParts = 3;
         applesEaten = 0;
         direction = 'R';
@@ -97,12 +103,16 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
                 }
                 g.fillRoundRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE, 10, 10);
 
-
                 //displaying score
                 g.setColor(Color.WHITE);
                 g.setFont(new Font("Arial", Font.BOLD, 20));
                 FontMetrics metrics = getFontMetrics(g.getFont());
-                g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
+                if (y[0] <= (SCREEN_HEIGHT / 2) - (10 * UNIT_SIZE)) {
+                    g.drawString(timer.getDelay() + " Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, SCREEN_HEIGHT - 5);
+                } else {
+                    g.drawString(timer.getDelay() + " Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
+                }
+
             }
         } else {
             gameOver(g);
@@ -143,6 +153,12 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
 
     public void checkApple() {
         if(x[0] == appleX && y[0] == appleY) {
+
+            //sets adjust to true again to enable readjusting the delay(speed of snake)
+            //only when (applesEaten * 5 ) + 1
+            if(applesEaten % 5 == 0 && !adjust) {
+                adjust = true;
+            }
 
             bodyParts++;
             applesEaten++;
@@ -190,6 +206,8 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     }
 
     public void gameOver(Graphics g) {
+        SFX.stopLoop();
+
         //play game over sound
         SFX.playGameOver();
 
@@ -201,7 +219,6 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
 
         //displays final score
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("Score: " + applesEaten)) / 2, (SCREEN_HEIGHT / 2) + 75);
 
@@ -211,25 +228,47 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
         FontMetrics metrics3 = getFontMetrics(g.getFont());
         g.drawString("Press [ENTER] to retry", (SCREEN_WIDTH - metrics3.stringWidth("Press [ENTER] to retry")) / 2, (SCREEN_HEIGHT / 2) + 125);
 
+        //back to menu
+        FontMetrics metrics4 = getFontMetrics(g.getFont());
+        g.drawString("Press [BACKSPACE] to return to Menu", (SCREEN_WIDTH - metrics4.stringWidth("Press [BACKSPACE] to return to Menu")) / 2, (SCREEN_HEIGHT / 2) + 180);
+
         //display game over picture
         Graphics2D g2 = (Graphics2D) g;
         g2.drawImage(gameOverIMG, (SCREEN_WIDTH / 2) - 50, (SCREEN_HEIGHT / 2) - 85, 100, 100, null);
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(running) {
+        if (running) {
             move();
             checkApple();
             checkCollisions();
+
+            // Increase speed every time applesEaten is divisible by 5
+            if (applesEaten > 0 && applesEaten % 5 == 0 && adjust) {
+                int currentDelay = timer.getDelay();
+                if (currentDelay > 10) {
+                    timer.setDelay(currentDelay - 5);
+                }
+                //sets adjust to false in order to avoid decrementing infinitely when applesEaten reaches 5
+                adjust = false;
+            }
         }
         repaint();
     }
 
+
     public class MyKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
-            if (!running && e.getKeyCode() == KeyEvent.VK_ENTER) {
-                startGame(); // Restarts the game
+            if (!running) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    // Restarts the game
+                    startGame();
+                }
+                if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE){
+                    parentFrame1.dispose();
+                    parentFrame2.setVisible(true);
+                }
             } else {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_A, KeyEvent.VK_LEFT -> {

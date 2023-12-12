@@ -1,3 +1,5 @@
+import Minesweeper.MinesweeperFrame;
+import Pong.PongFrame;
 import Snake.*;
 import TicTacToe.*;
 
@@ -11,26 +13,36 @@ public class Menu extends JFrame {
     private JButton btnMSW;
     private JButton btnTetris;
     private JLabel labelTitle;
+    private JButton btnBrickBreak;
 
     public Menu () {
         this.setContentPane(jpanel);
-        this.setSize(new Dimension(600, 600));
+        this.setSize(new Dimension(1200, 600));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
         this.setTitle("Y4 Games");
         this.setLocationRelativeTo(null);
 
         btnSnake.addActionListener(e -> {
-            this.dispose();
-            new SnakeGameFrame();
+            this.setVisible(false);
+            new SnakeGameFrame(this);
+        });
+
+        btnMSW.addActionListener(e -> {
+            this.setVisible(false);
+            new MinesweeperFrame(this);
         });
 
         btnTTT.addActionListener((e -> {
-            this.dispose();
-            new TicTacToeGame().setVisible(true);
+            this.setVisible(false);
+            new TicTacToeGame(this);
+        }));
+
+        btnBrickBreak.addActionListener((e -> {
+            this.setVisible(false);
+            new PongFrame(this);
         }));
     }
-
     public static void main(String[] args) {
         new Menu();
     }
