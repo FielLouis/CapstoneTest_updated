@@ -9,6 +9,7 @@ import Mino.*;
 import Sound.SFX;
 
 public class TetrisPlayManager {
+    boolean donePlayed;
     public final int WIDTH = 360;
     public final int HEIGHT = 600;
     public static int left_x;
@@ -28,7 +29,7 @@ public class TetrisPlayManager {
 
     public static int dropInterval = 60;
 
-    private boolean gameOver;
+    static boolean gameOver;
 
     private boolean effectCounterOn;
     private int effectCounter;
@@ -41,6 +42,8 @@ public class TetrisPlayManager {
     private static final String SCORE_FILE_PATH = "src/Tetris/tetris_score.txt";
 
     public TetrisPlayManager() {
+        donePlayed = false;
+
         left_x = (TetrisGamePanel.WIDTH / 2) - (WIDTH / 2);
         right_x = left_x + WIDTH;
         top_y = 50;
@@ -212,11 +215,15 @@ public class TetrisPlayManager {
 
         g2.setFont(new Font("Courier Pro", Font.BOLD, 40));
         if (gameOver) {
+            if(!donePlayed) {
+                SFX.playGameOver();
+                donePlayed = true;
+            }
+
             g2.setColor(Color.red);
             x = left_x + 60;
             y = top_y + 320;
             g2.drawString("GAME OVER", x, y);
-
         } else if (TetrisKeyHandler.pausePressed) {
             g2.setColor(Color.yellow);
             x = left_x + 30;

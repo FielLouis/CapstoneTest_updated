@@ -18,6 +18,11 @@ public class TetrisKeyHandler implements KeyListener {
 
         int code = e.getKeyCode();
 
+        if(TetrisPlayManager.gameOver && code == KeyEvent.VK_BACK_SPACE) {
+            TetrisGamePanel.parentFrame1.dispose();
+            TetrisGamePanel.parentFrame2.setVisible(true);
+        }
+
         if(code == KeyEvent.VK_W || code == KeyEvent.VK_UP){
             SFX.play(new File("music/rotation.wav"));
             upPressed = true;

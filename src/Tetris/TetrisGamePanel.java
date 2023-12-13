@@ -10,17 +10,20 @@ import java.io.File;
 import java.io.IOException;
 
 public class TetrisGamePanel extends JPanel implements Runnable{
-    JFrame parentFrame1;
-    JFrame parentFrame2;
+    static JFrame parentFrame1;
+    static JFrame parentFrame2;
     private BufferedImage bg_image;
     public static final int WIDTH = 1280;
     public static final int HEIGHT = 720;
     final int FPS = 60;
+    static boolean musicPlayed = false;
 
     Thread gameThread;
     TetrisPlayManager pm;
 
     public TetrisGamePanel(JFrame frame1, JFrame frame2){
+        SFX.loop(new File("music/tetris_theme_2.wav"), 10);
+
         parentFrame1 = frame1;
         parentFrame2 = frame2;
 
@@ -69,18 +72,18 @@ public class TetrisGamePanel extends JPanel implements Runnable{
                 repaint();
                 delta--;
 
-
-                long now = System.currentTimeMillis();
-                if (now - lastSecondTime >= 1000) {
-                    lastSecondTime = now;
-                    secondsPassed++;
-
-                    if(ctr % 83 == 0){
-                        SFX.play(new File("music/tetris_theme.wav"), 0.5f);
-                    }
-
-                    ctr++;
-                }
+//                long now = System.currentTimeMillis();
+//                if (now - lastSecondTime >= 1000) {
+//                    lastSecondTime = now;
+//                    secondsPassed++;
+//
+//                    if(ctr % 83 == 0 && !musicPlayed){
+//                        SFX.play(new File("music/tetris_theme.wav"), 0.5f);
+//                        musicPlayed = true;
+//                    }
+//
+//                    ctr++;
+//                }
             }
         }
     }

@@ -46,7 +46,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
 
     public void startGame() {
         try {
-            SFX.loop(snakeBGMusic);
+            SFX.loop(snakeBGMusic, 5);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -206,7 +206,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     }
 
     public void gameOver(Graphics g) {
-        SFX.stopLoop();
+        SFX.stopLoopingSound();
 
         //play game over sound
         SFX.playGameOver();

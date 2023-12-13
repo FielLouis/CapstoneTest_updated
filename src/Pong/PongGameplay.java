@@ -2,6 +2,7 @@ package Pong;
 
 import Sound.SFX;
 
+import java.io.File;
 import java.util.*;
 import java.awt.event.*;
 
@@ -18,6 +19,7 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
     static final int SCREEN_HEIGHT = 600;
     private boolean play = true;
     private int score;
+    private int scoreContinue;
     private int totalBricks = 48;
     private final Timer timer;
     private int delay = 8;
@@ -27,12 +29,13 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
     private int ballXdir = -1;
     private int ballYdir = -2;
     private PongMapGenerator map;
-    static boolean donePlaying = true;
-    public PongGameplay(JFrame frame1, JFrame frame2)
-    {
+    static boolean gameWon;
+    private final ImageIcon backgroundImage;
+    public PongGameplay(JFrame frame1, JFrame frame2) {
         parentFrame1 = frame1;
         parentFrame2 = frame2;
         map = new PongMapGenerator(4, 12);
+        backgroundImage = new ImageIcon("img/bb_bg.jpg");
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
@@ -40,12 +43,10 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
         timer.start();
     }
 
-    public void paint(Graphics g)
-    {
+    public void paint(Graphics g) {
         if(play) {
             // background
-            g.setColor(Color.black);
-            g.fillRect(1, 1, 692, 592);
+            g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
 
             // drawing map
             map.draw((Graphics2D) g);
@@ -59,6 +60,10 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
             // the scores
             g.setColor(Color.white);
             g.setFont(new Font("Arial", Font.BOLD, 25));
+            if(gameWon) {
+                score = scoreContinue;
+                gameWon = false;
+            }
             g.drawString("" + score, 590, 30);
 
             // the paddle
@@ -69,13 +74,18 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
             g.setColor(Color.yellow);
             g.fillOval(ballposX, ballposY, 20, 20);
 
-            g.setColor(Color.RED);
-            g.setFont(new Font("Arial", Font.BOLD, 50));
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("DialogInput", Font.BOLD, 50));
             FontMetrics metrics = getFontMetrics(g.getFont());
             // when you won the game
             if (totalBricks <= 0) {
                 play = false;
                 g.drawString("You Won", (SCREEN_WIDTH - metrics.stringWidth("You Won")) / 2, 300);
+
+                g.setFont(new Font("Arial", Font.PLAIN, 15));
+                FontMetrics metrics1 = getFontMetrics(g.getFont());
+                g.drawString("Press (C) to Continue", (SCREEN_WIDTH - metrics1.stringWidth("Press (C) to Continue")) / 2, 360);
+                gameWon = true;
                 gameOver(g);
             }
 
@@ -100,7 +110,7 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
         ballXdir = 0;
         ballYdir = 0;
 
-        g.setColor(Color.RED);
+        g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.PLAIN, 15));
         FontMetrics metrics = getFontMetrics(g.getFont());
 
@@ -111,8 +121,30 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
     public void keyPressed(KeyEvent e)
     {
         if(!play) {
-            if (e.getKeyCode() == KeyEvent.VK_ENTER)
-            {
+            if (e.getKeyCode() == KeyEvent.VK_C && gameWon) {
+                Random random = new Random();
+
+                int row = random.nextInt(3) + 3; // 3 to 6 rows
+                int col = random.nextInt(5) + 5; // 5 to 10 columns
+
+                play = true;
+                ballposX = 120;
+                ballposY = 350;
+                ballXdir = -1;
+                ballYdir = -2;
+                playerX = 310;
+                scoreContinue = score;
+                totalBricks = row * col;
+                map = new PongMapGenerator(row, col);
+
+                repaint();
+            }
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                Random random = new Random();
+
+                int row = random.nextInt(3) + 3; // 3 to 6 rows
+                int col = random.nextInt(5) + 5; // 5 to 10 columns
+
                 play = true;
                 ballposX = 120;
                 ballposY = 350;
@@ -120,12 +152,17 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
                 ballYdir = -2;
                 playerX = 310;
                 score = 0;
-                totalBricks = 21;
-                map = new PongMapGenerator(3, 7);
+                totalBricks = row * col;
+                map = new PongMapGenerator(row, col);
 
                 repaint();
             }
             if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                if(gameWon) {
+                    gameWon = false;
+
+                    //check if apil bas hi score
+                }
                 parentFrame1.dispose();
                 parentFrame2.setVisible(true);
             }
@@ -146,6 +183,9 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
             }
             if (e.getKeyCode() == KeyEvent.VK_A) {
                 ballposY = 575;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_S) {
+                totalBricks = 0;
             }
         }
     }
@@ -173,15 +213,18 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
             {
                 ballYdir = -ballYdir;
                 ballXdir = -2;
+                SFX.play(new File("music/bb_paddle.wav"));
             }
             else if(new Rectangle(ballposX, ballposY, 20, 20).intersects(new Rectangle(playerX + 70, 550, 30, 8)))
             {
                 ballYdir = -ballYdir;
                 ballXdir = ballXdir + 1;
+                SFX.play(new File("music/bb_paddle.wav"));
             }
             else if(new Rectangle(ballposX, ballposY, 20, 20).intersects(new Rectangle(playerX + 30, 550, 40, 8)))
             {
                 ballYdir = -ballYdir;
+                SFX.play(new File("music/bb_paddle.wav"));
             }
 
             // check map collision with the ball
@@ -204,6 +247,8 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
                             score += 5;
                             totalBricks--;
 
+                            SFX.play(new File("music/bb_brick.wav"));
+
                             // when ball hit right or left of brick
                             if(ballposX + 19 <= brickRect.x || ballposX + 1 >= brickRect.x + brickRect.width) {
                                 ballXdir = -ballXdir;
@@ -224,12 +269,15 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
 
             if(ballposX < 0) {
                 ballXdir = -ballXdir;
+                SFX.play(new File("music/bb_wall.wav"));
             }
             if(ballposY < 0) {
                 ballYdir = -ballYdir;
+                SFX.play(new File("music/bb_wall.wav"));
             }
             if(ballposX > 670) {
                 ballXdir = -ballXdir;
+                SFX.play(new File("music/bb_wall.wav"));
             }
         }
         repaint();
