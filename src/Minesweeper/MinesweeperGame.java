@@ -1,5 +1,7 @@
 package Minesweeper;
 
+import Sound.SFX;
+
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -322,6 +324,7 @@ public class MinesweeperGame extends JPanel {
             inGame = false;
             statusbar.setText("Game won");
         } else if (!inGame) {
+            SFX.playGameOver();
             statusbar.setText("Game lost");
         }
     }

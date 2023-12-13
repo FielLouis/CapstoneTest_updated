@@ -81,6 +81,8 @@ public class PongGameplay extends JPanel implements KeyListener, ActionListener
 
             // when ball goes out of bounds
             if(ballposY > 570) {
+                SFX.playGameOver();
+
                 play = false;
                 g.drawString("GAME OVER", (SCREEN_WIDTH - metrics.stringWidth("GAME OVER")) / 2, 300);
 

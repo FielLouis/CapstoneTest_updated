@@ -1,6 +1,7 @@
 import Minesweeper.MinesweeperFrame;
 import Pong.PongFrame;
 import Snake.*;
+import Tetris.TetrisGameFrame;
 import TicTacToe.*;
 
 import javax.swing.*;
@@ -12,7 +13,6 @@ public class Menu extends JFrame {
     private JButton btnTTT;
     private JButton btnMSW;
     private JButton btnTetris;
-    private JLabel labelTitle;
     private JButton btnBrickBreak;
 
     public Menu () {
@@ -31,6 +31,11 @@ public class Menu extends JFrame {
         btnMSW.addActionListener(e -> {
             this.setVisible(false);
             new MinesweeperFrame(this);
+        });
+
+        btnTetris.addActionListener(e -> {
+            this.setVisible(false);
+            new TetrisGameFrame(this);
         });
 
         btnTTT.addActionListener((e -> {
