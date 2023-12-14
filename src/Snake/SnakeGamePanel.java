@@ -108,9 +108,9 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
                 g.setFont(new Font("Arial", Font.BOLD, 20));
                 FontMetrics metrics = getFontMetrics(g.getFont());
                 if (y[0] <= (SCREEN_HEIGHT / 2) - (10 * UNIT_SIZE)) {
-                    g.drawString(timer.getDelay() + " Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, SCREEN_HEIGHT - 5);
+                    g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, SCREEN_HEIGHT - 5);
                 } else {
-                    g.drawString(timer.getDelay() + " Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
+                    g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
                 }
 
             }

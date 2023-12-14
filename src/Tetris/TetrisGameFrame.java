@@ -20,8 +20,4 @@ public class TetrisGameFrame extends JFrame {
 
         gp.launchGame();
     }
-
-    public static void main(String[] args) {
-        new TetrisGameFrame(null);
-    }
 }
