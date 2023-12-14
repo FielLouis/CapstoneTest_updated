@@ -22,8 +22,6 @@ public class TetrisGamePanel extends JPanel implements Runnable{
     TetrisPlayManager pm;
 
     public TetrisGamePanel(JFrame frame1, JFrame frame2){
-        SFX.loop(new File("music/tetris_theme_2.wav"), 10);
-
         parentFrame1 = frame1;
         parentFrame2 = frame2;
 
@@ -72,18 +70,18 @@ public class TetrisGamePanel extends JPanel implements Runnable{
                 repaint();
                 delta--;
 
-//                long now = System.currentTimeMillis();
-//                if (now - lastSecondTime >= 1000) {
-//                    lastSecondTime = now;
-//                    secondsPassed++;
-//
-//                    if(ctr % 83 == 0 && !musicPlayed){
-//                        SFX.play(new File("music/tetris_theme.wav"), 0.5f);
-//                        musicPlayed = true;
-//                    }
-//
-//                    ctr++;
-//                }
+                long now = System.currentTimeMillis();
+                if (now - lastSecondTime >= 1000) {
+                    lastSecondTime = now;
+                    secondsPassed++;
+
+                    if(ctr % 83 == 0 && !musicPlayed){
+                        SFX.play(new File("music/tetris_theme.wav"), 0.5f);
+                        musicPlayed = true;
+                    }
+
+                    ctr++;
+                }
             }
         }
     }

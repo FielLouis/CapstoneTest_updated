@@ -220,10 +220,13 @@ public class TetrisPlayManager {
                 donePlayed = true;
             }
 
-            g2.setColor(Color.red);
+            g2.setColor(Color.WHITE);
             x = left_x + 60;
             y = top_y + 320;
             g2.drawString("GAME OVER", x, y);
+
+            g2.setFont(new Font("Courier Pro", Font.PLAIN, 20));
+            g2.drawString("Press [BACKSPACE] to Return", (WIDTH / 2) + 320, y + 40);
         } else if (TetrisKeyHandler.pausePressed) {
             g2.setColor(Color.yellow);
             x = left_x + 30;
