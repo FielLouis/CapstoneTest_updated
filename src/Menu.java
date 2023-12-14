@@ -14,6 +14,7 @@ public class Menu extends JFrame {
     private JButton btnMSW;
     private JButton btnTetris;
     private JButton btnBrickBreak;
+    private JTextArea textArea1;
 
     public Menu () {
         this.setContentPane(jpanel);
